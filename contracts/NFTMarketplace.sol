@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity 0.8.4;
 
 
 import "hardhat/console.sol";
@@ -22,6 +22,13 @@ contract NFTMarketplace is ERC721URIStorage {
         owner = payable(msg.sender);
     }
 
+
+    // modifier to be used when owner needs to be called
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
     // struct to create info about NFTs
 
     struct ListedToken{
@@ -32,14 +39,21 @@ contract NFTMarketplace is ERC721URIStorage {
         bool sold;
     }
  
+    event sellToken(
+        uint256 indexed date,
+         uint256 tokenId,
+        address  owner,
+        address  seller,
+        uint256 price
+        );
+        
     // mapping so that we can retrive metadata from token ID
     mapping (uint256 => ListedToken) private idOfTokenListed;
 
 
    // function for updating listing price of the market place
-   function updateListingPrice( uint256 newPrice) public payable{
+   function updateListingPrice( uint256 newPrice) public payable onlyOwner{
     //only owner can append the price
-    require(owner== msg.sender, "Listing price can only be changed by owner");
     listingPrice = newPrice;
    }
 
@@ -60,7 +74,7 @@ contract NFTMarketplace is ERC721URIStorage {
         return idOfTokenListed[tokenId];
     }
 
-    // function to get latest token id
+    // function to get latest token id and also the number of tokens on the platform 
     function getCurrentTokenId() public view returns(uint256){
         return _tokenID.current();
     }
@@ -108,7 +122,7 @@ contract NFTMarketplace is ERC721URIStorage {
         uint nftCount = _tokenID.current();   // number of NFTs
         ListedToken[] memory tokens = new ListedToken[](nftCount);  // creating array of NFT
 
-        uint index = 0;
+        uint index;
 
          for (uint256 i=0; i < nftCount; i++){
             uint currentId = i + 1;
@@ -124,8 +138,8 @@ contract NFTMarketplace is ERC721URIStorage {
     // user checking his NFT collection, Which one is brought or sold
     function getMyNFTs() public view returns (ListedToken[] memory){
         uint256 totalNftCount = _tokenID.current();
-        uint256 currentIndex = 0;
-        uint256 itemCount=0;
+        uint256 currentIndex;
+        uint256 itemCount;
 
         // to count the number of nfts the user holds as a buyer or seller
         for ( uint256 i=0; i < totalNftCount; i++){
@@ -166,6 +180,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
         payable(owner).transfer(listingPrice);
         payable(seller).transfer(msg.value); 
+        emit sellToken(block.timestamp, tokenId, owner, seller, msg.value);
 
     }
       
