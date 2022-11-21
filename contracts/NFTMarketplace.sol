@@ -110,7 +110,7 @@ contract NFTMarketplace is ERC721URIStorage {
             payable(address(this)),
             payable(msg.sender),
             price,
-            true
+            false
         );
 
         _transfer(msg.sender, address(this), tokenId);
@@ -168,7 +168,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
     function sellingNFT ( uint256 tokenId) public payable{
         // checking that user have sufficient funds to buy the NFT 
-        require(msg.value ==  idOfTokenListed[tokenId]. price , "Please add sufficient funds to buy NFT");
+        require(msg.value ==  idOfTokenListed[tokenId].price , "Please add sufficient funds to buy NFT");
         address seller = idOfTokenListed[tokenId].seller;
 
         idOfTokenListed[tokenId].sold = true;
@@ -176,12 +176,15 @@ contract NFTMarketplace is ERC721URIStorage {
         _itemSold.increment();
 
         _transfer(address(this), msg.sender, tokenId);
-        approve(address(this), tokenId);
+       
 
         payable(owner).transfer(listingPrice);
         payable(seller).transfer(msg.value); 
         emit sellToken(block.timestamp, tokenId, owner, seller, msg.value);
 
     }
-      
+
+    // cancel listing function  - tranfer from address.this to msg.sender & require ( only seller can call the contract)
+    // looking from approval modal 
+     
 }
