@@ -5,6 +5,7 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
+require("hardhat-gas-reporter")
 const fs = require('fs');
 // const infuraId = fs.readFileSync(".infuraid").toString().trim() || "";
 require('dotenv').config();
@@ -36,5 +37,8 @@ module.exports = {
         runs: 200
       }
     }
+  },
+  gasReporter: {
+    enabled: true,
   }
 };
