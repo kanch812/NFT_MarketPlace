@@ -91,10 +91,19 @@ contract NFTMarketplace is ERC721URIStorage {
         return idOfTokenListed[tokenId];
     }
 
+    function getTokenPrice(uint256 _tokenId) public view returns(uint256){
+        return idOfTokenListed[_tokenId].price;
+    }
+
     // function to get latest token id and also the number of tokens on the platform
     function getCurrentTokenId() public view returns (uint256) {
         return _tokenID.current();
     }
+
+  //  function transferListingPrice( uint _listingPrice) public {
+    //    _listingPrice= listingPrice;
+      //  _transfer(msg.sender, address(this), _listingPrice);
+    //}
 
     /* main functions to be included in NFT market place
     create token() creating token for the first time
@@ -105,13 +114,13 @@ contract NFTMarketplace is ERC721URIStorage {
     */
 
     // function to create NFT token by the URI of it from the front containing the metadata of the same
-    function createToken(string memory tokenURI, uint256 price)
+    function createListing(string memory tokenURI, uint256 price)
         public
         payable
         returns (uint256)
     {
         // checking enough money sent by the lister, have  atleast listingPrice
-        require(msg.value == listingPrice, "Please send minimum listing price");
+        //require(msg.value >= listingPrice, "Please send minimum listing price");
         require(price > 0, "No negative price value please!");
 
         _tokenID.increment();

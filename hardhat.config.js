@@ -39,6 +39,8 @@ module.exports = {
     }
   },
   gasReporter: {
-    enabled: true,
+    enabled: false,
+    outputFile: 'gas-reporter.txt',
+    noColors: true, 
   }
 };
