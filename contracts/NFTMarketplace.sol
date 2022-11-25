@@ -30,17 +30,15 @@ contract NFTMarketplace is ERC721URIStorage {
     struct ListedToken {
         uint256 tokenId;
         address payable owner;
-        address  seller;
+        address seller;
         uint256 price;
         bool sold;
     }
 
-   
-
     // mapping so that we can retrive metadata from token ID
     mapping(uint256 => ListedToken) private idOfTokenListed;
 
-     event sellToken(
+    event sellToken(
         uint256 indexed date,
         uint256 tokenId,
         address owner,
@@ -48,11 +46,7 @@ contract NFTMarketplace is ERC721URIStorage {
         uint256 price
     );
 
-    event createNFTToken(
-        string tokenURI,
-        uint256 _tokenID,
-        uint256 price
-    );
+    event createNFTToken(string tokenURI, uint256 _tokenID, uint256 price);
 
     event cancellingToken(
         address indexed seller,
@@ -91,7 +85,7 @@ contract NFTMarketplace is ERC721URIStorage {
         return idOfTokenListed[tokenId];
     }
 
-    function getTokenPrice(uint256 _tokenId) public view returns(uint256){
+    function getTokenPrice(uint256 _tokenId) public view returns (uint256) {
         return idOfTokenListed[_tokenId].price;
     }
 
@@ -100,9 +94,9 @@ contract NFTMarketplace is ERC721URIStorage {
         return _tokenID.current();
     }
 
-  //  function transferListingPrice( uint _listingPrice) public {
+    //  function transferListingPrice( uint _listingPrice) public {
     //    _listingPrice= listingPrice;
-      //  _transfer(msg.sender, address(this), _listingPrice);
+    //  _transfer(msg.sender, address(this), _listingPrice);
     //}
 
     /* main functions to be included in NFT market place
@@ -120,7 +114,7 @@ contract NFTMarketplace is ERC721URIStorage {
         returns (uint256)
     {
         // checking enough money sent by the lister, have  atleast listingPrice
-        //require(msg.value >= listingPrice, "Please send minimum listing price");
+        require(msg.value >= listingPrice, "Please send minimum listing price");
         require(price > 0, "No negative price value please!");
 
         _tokenID.increment();
@@ -220,19 +214,17 @@ contract NFTMarketplace is ERC721URIStorage {
 
     // cancel listing function  - tranfer from address.this to msg.sender & require ( only seller can call the contract)
     // looking from approval modal
-    function cancelListing(uint256 _tokenId ) public {
-
+    function cancelListing(uint256 _tokenId) public {
         address seller = idOfTokenListed[_tokenId].seller;
-        require(msg.sender== seller, "Only owner of the token can delist! ");
-        _transfer( address(this), seller, _tokenId);
+        require(msg.sender == seller, "Only owner of the token can delist! ");
+        _transfer(address(this), seller, _tokenId);
         idOfTokenListed[_tokenId].seller = payable(address(0));
-        idOfTokenListed[_tokenId].owner= payable(msg.sender);
+        idOfTokenListed[_tokenId].owner = payable(msg.sender);
         emit cancellingToken(seller, address(this), _tokenId);
-        
     }
 
-    //resell function 
-     function resellNft(uint256 tokenId, uint256 price) public payable {
+    //resell function
+    function resellNft(uint256 tokenId, uint256 price) public payable {
         require(
             idOfTokenListed[tokenId].owner == msg.sender,
             "Only the owner of nft can sell his nft"

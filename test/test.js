@@ -54,25 +54,34 @@ describe("Check different functions...", function () {
 
             const ethListingPrice = BigNumber.from(await marketPlace.getListingPrice())
 
-            // userNftMarketPlace = NFTMarketplace.connect(user)
-            // Send listing price in dai  to nft marketplace
-            //await marketPlace.transfer(deployer.address,ethListingPrice)
-            // await hardhatToken.transfer(addr1.address, 50);
-            //const tx = await userNftMarketPlace.ethers.transfer(deployer, ethListingPrice)
-            const currentTokenId = await marketPlace.createListing(tokenUri, price)
-            const updatedTokenId = await marketPlace.createListing(tokenUri1, price1)
+            const currentTokenId = await marketPlace.createListing(tokenUri, price,{ value: ethers.utils.parseEther("0.5") })
+            const updatedTokenId = await marketPlace.createListing(tokenUri1, price1, { value: ethers.utils.parseEther("0.5") })
             const latestToken = await marketPlace.getCurrentTokenId()
             console.log("The new token id",  latestToken.toString() )
+            console.log("The new token id",  currentTokenId.toString() )
             const tokenPrice = BigNumber.from(await marketPlace.getTokenPrice(latestToken))
-            console.log("Token price", ethers.utils.formatEther(tokenPrice))
-           // console.log("The new token id",  updatedTokenId.toString() )
-            const transactionHash = await user.sendTransaction({
-                to: deployer.address,
-                value: ethListingPrice })
-            console.log("Address of user :", user.address)
-            console.log("Address of deployer :", deployer.address)    
-           console.log ("checking status of eth transfer", await transactionHash.toString())
-           
+            console.log("Token price", ethers.utils.formatEther(tokenPrice))           
+        })
+    })
+
+    describe("checking getAllNft function", function(){
+        it(" should get all the NFTs listed on the platform", async function(){
+            await marketPlace.createListing("abc", ethers.utils.parseEther("0.0001"), { value: ethers.utils.parseEther("0.5") })
+            
+            await marketPlace.createListing("def", ethers.utils.parseEther("0.0002"), { value: ethers.utils.parseEther("0.5") })
+            
+            await marketPlace.createListing("ghi", ethers.utils.parseEther("0.0003"), { value: ethers.utils.parseEther("0.5") })
+            
+            await marketPlace.createListing("jkl", ethers.utils.parseEther("0.0004"), { value: ethers.utils.parseEther("0.5") })
+            
+            await marketPlace.createListing("mno", ethers.utils.parseEther("0.0005"), { value: ethers.utils.parseEther("0.5") })
+            let nfToken = await marketPlace.getAllNFTs()
+            assert.equal(nfToken.length, '5')
+
+          //  expect(await nfToken[0].sold).to.equal("false")
+            assert.equal(await nfToken[0].sold, false)
+            console.log(" The token price of 5rd NFT: ", ethers.utils.formatEther(nfToken[4].price))
+            assert.equal(await (nfToken[2].tokenId).toString(), '3')
         })
     })
 })
