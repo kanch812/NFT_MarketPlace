@@ -30,7 +30,7 @@ contract NFTMarketplace is ERC721URIStorage {
     struct ListedToken {
         uint256 tokenId;
         address payable owner;
-        address seller;
+        address payable seller;
         uint256 price;
         bool sold;
     }
@@ -123,6 +123,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
         _setTokenURI(currentTokenId, tokenURI);
         createListedToken(currentTokenId, price);
+        
         emit createNFTToken(tokenURI, currentTokenId, price);
         return currentTokenId;
     }
@@ -194,22 +195,25 @@ contract NFTMarketplace is ERC721URIStorage {
 
     function buyNFT(uint256 tokenId) public payable {
         // checking that user have sufficient funds to buy the NFT
+        uint256 tokenPrice = idOfTokenListed[tokenId].price;
         require(
-            msg.value == idOfTokenListed[tokenId].price,
+            msg.value >= tokenPrice,
             "Please add sufficient funds to buy NFT"
         );
-        address seller = idOfTokenListed[tokenId].seller;
+        address payable seller = idOfTokenListed[tokenId].seller;
 
         idOfTokenListed[tokenId].sold = true;
-        idOfTokenListed[tokenId].seller = address(0);
+      
         idOfTokenListed[tokenId].owner = payable(msg.sender);
-        _itemSold.increment();
+       // transferFrom(address(this), seller, tokenId);
+       _transfer(address(this), msg.sender, tokenId);
 
-        _transfer(address(this), msg.sender, tokenId);
-
-        payable(owner).transfer(listingPrice);
+        //payable(owner).transfer(listingPrice);
         payable(seller).transfer(msg.value);
         emit sellToken(block.timestamp, tokenId, owner, seller, msg.value);
+        seller = payable(address(0));
+      
+        _itemSold.increment();
     }
 
     // cancel listing function  - tranfer from address.this to msg.sender & require ( only seller can call the contract)
